@@ -8,6 +8,8 @@ contract TokenFarm {
     DappToken public dappToken;
     DaiToken public daiToken;
 
+    // mapping()
+
     constructor(DappToken _dappToken, DaiToken _daiToken) public {
         dappToken = _dappToken;
         daiToken = _daiToken;
