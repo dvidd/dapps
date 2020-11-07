@@ -33,4 +33,23 @@ contract("TokenFarm", ([owner, investor]) => {
       assert.equal(name, "Mock DAI Token");
     });
   });
+
+  describe("Dapp Token deployment", async () => {
+    it("has a name", async () => {
+      const name = await dappToken.name();
+      assert.equal(name, "DApp Token");
+    });
+  });
+
+  describe("Token Farm deployment", async () => {
+    it("has a name", async () => {
+      const name = await tokenFarm.name();
+      assert.equal(name, "Dapp Token Farm");
+    });
+  });
+
+  it("contract has token", async () => {
+    let balance = await dappToken.balanceOf(tokenFarm.address);
+    assert.equal(balance.toString(), tokens("1000000"));
+  });
 });
