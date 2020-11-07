@@ -10,7 +10,7 @@ function tokens(n) {
   return web3.utils.toWei(n, "Ether");
 }
 
-contract("TokenFarm", accounts => {
+contract("TokenFarm", ([owner, investor]) => {
   // Write here tests
   let daiToken, dappToken, tokenFarm;
   before(async () => {
@@ -21,6 +21,9 @@ contract("TokenFarm", accounts => {
 
     // Transfer all dapp token to farm
     await dappToken.transfer(tokenFarm.address, tokens("1000000"));
+
+    // Send tokens to investor
+    await daiToken.transfer(investor, tokens("100"), { from: owner });
   });
 
   describe("Mock DAI deployment", async () => {
