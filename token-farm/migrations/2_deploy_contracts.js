@@ -8,7 +8,8 @@ module.exports = async function(deployer, network, accounts) {
   const daiToken = await DaiToken.deployed();
   // Deploy mock dapp token
   await deployer.deploy(DappToken);
-  const DappToken = await DappToken.deployed();
+  const dappToken = await DappToken.deployed();
 
-  deployer.deploy(TokenFarm);
+  await deployer.deploy(TokenFarm, dappToken.address, daiToken.address);
+  const tokenFarm = await TokenFarm.deployed();
 };
