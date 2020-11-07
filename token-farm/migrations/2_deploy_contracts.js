@@ -12,4 +12,9 @@ module.exports = async function(deployer, network, accounts) {
 
   await deployer.deploy(TokenFarm, dappToken.address, daiToken.address);
   const tokenFarm = await TokenFarm.deployed();
+  // transfer tokens to the tokenFarn
+  await dappToken.transfer(tokenFarm.address, "1000000000000000000000000");
+
+  // Transfer 100 Mock Dai tokens to investor
+  await daiToken.transfer(accounts[1], "1000000000000000000000000");
 };
