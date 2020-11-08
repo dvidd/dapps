@@ -8,7 +8,7 @@ contract TokenFarm {
     DappToken public dappToken;
     DaiToken public daiToken;
 
-    // mapping()
+    mapping(address => uint256) public stakingBalance;
 
     constructor(DappToken _dappToken, DaiToken _daiToken) public {
         dappToken = _dappToken;
@@ -19,6 +19,9 @@ contract TokenFarm {
     function stakeTokens(uint256 _amount) public {
         // Transfar mock dai to this contract for stakin
         daiToken.transferFrom(msg.sender, address(this), _amount);
+
+        // Update stakeBalance
+        stakingBalance[msg.sender] = stakingBalance[msg.sender] + _amount;
     }
 
     // Unstaking Tokens (Withdraw)
