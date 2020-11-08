@@ -1,14 +1,11 @@
 import React, { Component } from "react";
-import Navbar from "./Navbar";
-import "./App.css";
-
+import Web3 from "web3";
 import DaiToken from "../abis/DaiToken.json";
 import DappToken from "../abis/DappToken.json";
 import TokenFarm from "../abis/TokenFarm.json";
-
+import Navbar from "./Navbar";
 import Main from "./Main";
-
-import Web3 from "web3";
+import "./App.css";
 
 class App extends Component {
   async componentWillMount() {
@@ -18,13 +15,11 @@ class App extends Component {
 
   async loadBlockchainData() {
     const web3 = window.web3;
+
     const accounts = await web3.eth.getAccounts();
-    console.log(accounts);
     this.setState({ account: accounts[0] });
 
-    // Load blockchain contracts to the network
     const networkId = await web3.eth.net.getId();
-    console.log(networkId);
 
     // Load DaiToken
     const daiTokenData = DaiToken.networks[networkId];
@@ -90,6 +85,31 @@ class App extends Component {
     }
   }
 
+  stakeTokens = amount => {
+    this.setState({ loading: true });
+    this.state.daiToken.methods
+      .approve(this.state.tokenFarm._address, amount)
+      .send({ from: this.state.account })
+      .on("transactionHash", hash => {
+        this.state.tokenFarm.methods
+          .stakeTokens(amount)
+          .send({ from: this.state.account })
+          .on("transactionHash", hash => {
+            this.setState({ loading: false });
+          });
+      });
+  };
+
+  unstakeTokens = amount => {
+    this.setState({ loading: true });
+    this.state.tokenFarm.methods
+      .unstakeTokens()
+      .send({ from: this.state.account })
+      .on("transactionHash", hash => {
+        this.setState({ loading: false });
+      });
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -109,8 +129,6 @@ class App extends Component {
     if (this.state.loading) {
       content = (
         <p id="loader" className="text-center">
-          <br /> <br /> <br />
-          <br />
           Loading...
         </p>
       );
@@ -125,6 +143,7 @@ class App extends Component {
         />
       );
     }
+
     return (
       <div>
         <Navbar account={this.state.account} />
@@ -141,6 +160,7 @@ class App extends Component {
                   target="_blank"
                   rel="noopener noreferrer"
                 ></a>
+
                 {content}
               </div>
             </main>
