@@ -1,7 +1,7 @@
 {
   "name": "DVideo",
   "version": "0.1.0",
-  "description": "Decentralized Social Media",
+  "description": "Decentralized platform for video publishing",
   "author": "Dapp University",
   "homepage": ".",
   "dependencies": {
