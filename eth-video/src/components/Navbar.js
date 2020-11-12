@@ -9,7 +9,7 @@ class Navbar extends Component {
           target="_blank"
           rel="noopener noreferrer"
         >
-          🎥 &nbsp; <b>eth-tube</b>
+          🎥 &nbsp; <b>eth-video</b>
         </a>
 
         <ul className="navbar-nav px-3">
