@@ -50,7 +50,7 @@ class App extends Component {
 
     //Set latest video and it's title to view as default
     //Set loading state to false
-
+    // this.setState({ loading: true });
     //If network data doesn't exisits, log error
   }
 
