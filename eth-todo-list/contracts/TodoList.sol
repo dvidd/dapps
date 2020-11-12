@@ -18,6 +18,10 @@ contract TodoList {
   function createTask(string memory _content) public {
     taskCount ++;
     tasks[taskCount] = Task(taskCount,_content,false);
+
+  }
+  function removeTask(uint memory _index) {
+        delete tasks[]
   }
 
 
