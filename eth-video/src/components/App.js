@@ -34,77 +34,109 @@ class App extends Component {
 
   async loadBlockchainData() {
     const web3 = window.web3;
-    //Load accounts
+    // Load account
     const accounts = await web3.eth.getAccounts();
-    //Add first account the the state
     this.setState({ account: accounts[0] });
-    //Get network ID
-    //Get network data
+    // Network ID
     const networkId = await web3.eth.net.getId();
-    //Check if net data exists, then
     const networkData = DVideo.networks[networkId];
     if (networkData) {
-      const dvideo = new web3.eth.Contract(
-        DVideo.abi,
-        DVideo.networks[networkId].address
-      );
-      console.log(dvideo);
+      const dvideo = new web3.eth.Contract(DVideo.abi, networkData.address);
+      this.setState({ dvideo });
+      const videosCount = await dvideo.methods.videoCount().call();
+      this.setState({ videosCount });
+
+      // Load videos, sort by newest
+      for (var i = videosCount; i >= 1; i--) {
+        const video = await dvideo.methods.videos(i).call();
+        this.setState({
+          videos: [...this.state.videos, video]
+        });
+      }
+
+      //Set latest video with title to view as default
+      const latest = await dvideo.methods.videos(videosCount).call();
+      this.setState({
+        currentHash: latest.hash,
+        currentTitle: latest.title
+      });
+      this.setState({ loading: false });
     } else {
-      window.alert("Dvideo contract not deployed to the network");
+      window.alert("DVideo contract not deployed to detected network.");
     }
-    //Assign dvideo contract to a variable
-    //Add dvideo to the state
-
-    //Check videoAmounts
-    //Add videAmounts to the state
-
-    //Iterate throught videos and add them to the state (by newest)
-
-    //Set latest video and it's title to view as default
-    //Set loading state to false
-    // this.setState({ loading: true });
-    //If network data doesn't exisits, log error
   }
 
-  //Get video
-  captureFile = event => {};
+  captureFile = event => {
+    event.preventDefault();
+    const file = event.target.files[0];
+    const reader = new window.FileReader();
+    reader.readAsArrayBuffer(file);
 
-  //Upload video
-  uploadVideo = title => {};
+    reader.onloadend = () => {
+      this.setState({ buffer: Buffer(reader.result) });
+      console.log("buffer", this.state.buffer);
+    };
+  };
 
-  //Change Video
-  changeVideo = (hash, title) => {};
+  uploadVideo = title => {
+    console.log("Submitting file to IPFS...");
+
+    //adding file to the IPFS
+    ipfs.add(this.state.buffer, (error, result) => {
+      console.log("IPFS result", result);
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      this.setState({ loading: true });
+      this.state.dvideo.methods
+        .uploadVideo(result[0].hash, title)
+        .send({ from: this.state.account })
+        .on("transactionHash", hash => {
+          this.setState({ loading: false });
+        });
+    });
+  };
+
+  changeVideo = (hash, title) => {
+    this.setState({ currentHash: hash });
+    this.setState({ currentTitle: title });
+  };
 
   constructor(props) {
     super(props);
     this.state = {
-      account: "",
       buffer: null,
+      account: "",
       dvideo: null,
       videos: [],
       loading: true,
       currentHash: null,
       currentTitle: null
-      //set states
     };
 
-    //Bind functions
+    this.uploadVideo = this.uploadVideo.bind(this);
+    this.captureFile = this.captureFile.bind(this);
+    this.changeVideo = this.changeVideo.bind(this);
   }
 
   render() {
     return (
       <div>
-        <Navbar
-          account={this.state.account}
-          //Account
-        />
+        <Navbar account={this.state.account} />
         {this.state.loading ? (
           <div id="loader" className="text-center mt-5">
             <p>Loading...</p>
           </div>
         ) : (
           <Main
-          //states&functions
+            videos={this.state.videos}
+            uploadVideo={this.uploadVideo}
+            captureFile={this.captureFile}
+            changeVideo={this.changeVideo}
+            currentHash={this.state.currentHash}
+            currentTitle={this.state.currentTitle}
           />
         )}
       </div>
